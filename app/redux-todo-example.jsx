@@ -26,13 +26,24 @@ let reducer = (state, action) => {
     }
 };
 
-let store = redux.createStore(reducer);
+let store = redux.createStore(reducer, redux.compose(
+    window.devToolsExtension ? window.devToolsExtension() : f => f
+));
+
+//subscribe to changes
+store.subscribe(() => {
+    "use strict";
+    let state = store.getState();
+    console.log('Search Text Change: ', state.searchFilter);
+    console.log('Show Completed Tasks: ', state.showCompleted);
+});
+
 let currentState = store.getState();
 
 console.log('Current State: ', currentState);
 
 //all actions must be objects
-let action = {
+let action1 = {
     type: 'SHOW_COMPLETED',
     showCompleted: true
 };
@@ -42,7 +53,11 @@ let action2 = {
     searchFilter: 'Feed Mister'
 };
 
+let action3 = {
+    type: 'SET_FILTER',
+    searchFilter: 'Make Dinner'
+};
+
+store.dispatch(action1);
 store.dispatch(action2);
-let updatedState = store.getState();
-console.log('updated state: ', updatedState);
-console.log('default state: ', defaultState);
+store.dispatch(action3);
