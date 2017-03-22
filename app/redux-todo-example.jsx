@@ -173,4 +173,4 @@ setSearchFilterTo('Mister');
 viewCompletedTasks(true);
 addTask('Feed Mister');
 addTask('Walk Bailey');
-removeTask(1);
+deleteTask(1);
