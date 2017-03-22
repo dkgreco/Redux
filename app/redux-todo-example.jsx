@@ -1,14 +1,10 @@
-const redux = require('redux');
+const redux = require('redux'),
+    axios = require('axios');
 console.log('Starting Redux');
 
-let testActionList = () => {
+let setDispatchTo = actionGenerator => {
     "use strict";
-
-};
-
-let dispatch = action => {
-    "use strict";
-    return store.dispatch(action);
+    return store.dispatch(actionGenerator);
 };
 
 //SearchFilter Reducer and Action Generators
@@ -24,7 +20,7 @@ let searchFilterReducer = (state, action) => {
     }
 };
 
-let dispatchChangeToSearchFilter = searchFilter => {
+let changeSearchFilter = searchFilter => {
     "use strict";
     return {
         type: 'SET_FILTER',
@@ -32,7 +28,7 @@ let dispatchChangeToSearchFilter = searchFilter => {
     }
 };
 
-let setSearchFilterTo = searchFilter => dispatch(dispatchChangeToSearchFilter(searchFilter));
+let setSearchFilterTo = searchFilter => setDispatchTo(changeSearchFilter(searchFilter));
 
 //Show all completed tasks Reducer and Action Generators
 //---------------
@@ -47,7 +43,7 @@ let showCompletedReducer = (state, action) => {
     }
 };
 
-let dispatchChangeToShowCompletedTasks = boolVal => {
+let showCompletedTasks = boolVal => {
     "use strict";
     return {
         type: 'SHOW_COMPLETED',
@@ -55,7 +51,7 @@ let dispatchChangeToShowCompletedTasks = boolVal => {
     }
 };
 
-let showCompletedTasks = boolVal => dispatch(dispatchChangeToShowCompletedTasks(boolVal));
+let viewCompletedTasks = boolVal => setDispatchTo(showCompletedTasks(boolVal));
 
 //taskList Reducer and Action Generators
 //---------------
@@ -79,7 +75,7 @@ let taskListReducer = (state, action) => {
     }
 };
 
-let dispatchAdditionToTaskList = task => {
+let addTaskToList = task => {
     "use strict";
     return {
         type: 'ADD_TASK',
@@ -87,9 +83,9 @@ let dispatchAdditionToTaskList = task => {
     }
 };
 
-let addTaskToList = task => dispatch(dispatchAdditionToTaskList(task));
+let addTask = task => setDispatchTo(addTaskToList(task));
 
-let dispatchSubtractionFromTaskList = taskId => {
+let removeTaskFromList = taskId => {
     "use strict";
     return {
         type: 'DEL_TASK',
@@ -97,12 +93,67 @@ let dispatchSubtractionFromTaskList = taskId => {
     }
 };
 
-let removeTaskFromList = taskId => dispatch(dispatchSubtractionFromTaskList(taskId));
+let deleteTask = byTaskId => setDispatchTo(removeTaskFromList(byTaskId));
+
+//SearchFilter Reducer and Action Generators
+//---------------
+let mapReducer = (state, action) => {
+    "use strict";
+    let defaultState = {
+        isFetching: false,
+        url: undefined
+    };
+    state = state || defaultState;
+    switch(action.type) {
+        case 'START_LOCATION_SEARCH':
+            return {
+                isFetching: true,
+                url: undefined
+            };
+        case 'STOP_LOCATION_SEARCH':
+            return {
+                isFetching: false,
+                url: action.url
+            };
+        default:
+            return state;
+    }
+};
+
+let startLocationSearch = () => {
+    "use strict";
+    return {
+        type: 'START_LOCATION_SEARCH'
+    }
+};
+
+let completeLocationSearch = url => {
+    "use strict";
+    return {
+        type: 'STOP_LOCATION_SEARCH',
+        url: url
+    }
+};
+
+let fetchLocationInfo = () => {
+    setDispatchTo(startLocationSearch());
+
+    axios.get('http://ipinfo.io').then(res => {
+        "use strict";
+        let location = res.data.loc;
+        let baseUrl = 'http://maps.google.com/?q=';
+
+        let passbackUrl = baseUrl + location;
+
+        setDispatchTo(completeLocationSearch(passbackUrl));
+    });
+};
 
 let reducer = redux.combineReducers({
     searchFilter: searchFilterReducer,
     showCompleted: showCompletedReducer,
-    taskList: taskListReducer
+    taskList: taskListReducer,
+    map: mapReducer
 });
 
 let store = redux.createStore(reducer, redux.compose(
@@ -117,8 +168,9 @@ store.subscribe(() => {
 });
 
 //all actions must be objects
+fetchLocationInfo();
 setSearchFilterTo('Mister');
-showCompletedTasks(true);
-addTaskToList('Feed Mister');
-addTaskToList('Walk Bailey');
-removeTaskFromList(1);
+viewCompletedTasks(true);
+addTask('Feed Mister');
+addTask('Walk Bailey');
+removeTask(1);
