@@ -12,4 +12,20 @@ ReactDOM.render(
 );
 
 //require('./redux-example.jsx')
-require('./redux-todo-example.jsx');
+let {
+    setSearchFilterTo,
+    viewCompletedTasks,
+    addTask,
+    removeTask,
+    fetchLocation
+} = require('./redux-todo-example.jsx');
+
+let controller = {
+    setSearchFilterTo,
+    viewCompletedTasks,
+    addTask,
+    removeTask,
+    fetchLocation
+};
+
+window.controller = controller;
