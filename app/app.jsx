@@ -6,12 +6,20 @@ const React = require('react'),
 require('style!css!sass!applicationStyles');
 $('document').foundation();
 
-ReactDOM.render(
+/*ReactDOM.render(
     <p>Learn Redux</p>,
     document.getElementById('app')
-);
+);*/
 
-//require('./redux-example.jsx')
+//require('./redux-example.jsx');
+
+let store = require('./src-redux/store/configureStore.jsx').configure();
+console.log(store);
+store.subscribe(() => {
+    "use strict";
+    console.log('NewState: ', store.getState());
+});
+
 let {
     setSearchFilterTo,
     viewCompletedTasks,
